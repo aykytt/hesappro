@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HesapPro – Muhasebe Hesap Makinesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep:#07090f;--bg-base:#0b0f1a;--bg-card:#0f1525;--bg-panel:#131929;
+  --bg-raised:#182030;--bg-hover:#1e293b;
+  --border-dim:#1a2540;--border-mid:#243050;--border-lit:#2e4070;
+  --accent:#3b82f6;--accent-glow:rgba(59,130,246,.14);--accent-deep:#1d4ed8;
+  --green:#10b981;--green-dim:rgba(16,185,129,.12);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);
+  --red:#f87171;--red-dim:rgba(248,113,113,.10);
+  --txt-hi:#eef2ff;--txt-mid:#94a3c4;--txt-lo:#3d5070;
+  --mono:'JetBrains Mono',monospace;--display:'Syne',sans-serif;
+  --r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:20px;
+  --focus:0 0 0 3px rgba(59,130,246,.45);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-deep);color:var(--txt-hi);font-family:var(--mono);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:32px 16px 48px;background-image:radial-gradient(ellipse 70% 40% at 15% 0%,rgba(59,130,246,.07) 0%,transparent 70%),radial-gradient(ellipse 50% 30% at 85% 100%,rgba(16,185,129,.05) 0%,transparent 60%)}
+.skip-link{position:absolute;top:-100px;left:16px;background:var(--accent);color:#fff;padding:8px 16px;border-radius:var(--r-sm);font-family:var(--mono);font-size:13px;font-weight:600;z-index:9999;text-decoration:none;transition:top .2s}
+.skip-link:focus{top:16px}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* HEADER */
+.site-header{text-align:center;margin-bottom:32px}
+.site-eyebrow{font-size:10px;letter-spacing:.22em;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+.site-title{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.02em}
+.site-title span{color:var(--accent)}
+
+/* APP SHELL */
+.app{width:100%;max-width:860px;display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start}
+
+/* SIDEBAR */
+.sidebar{background:var(--bg-card);border:1px solid var(--border-dim);border-radius:var(--r-xl);overflow:hidden;position:sticky;top:24px}
+.sidebar-section{padding:13px 14px 7px;font-size:9px;letter-spacing:.18em;color:var(--txt-lo);text-transform:uppercase;border-bottom:1px solid var(--border-dim)}
+.nav-btn{display:flex;align-items:center;gap:9px;width:calc(100% - 12px);margin:2px 6px;padding:10px 12px;background:none;border:none;color:var(--txt-mid);font-family:var(--mono);font-size:12px;font-weight:500;cursor:pointer;border-radius:var(--r-sm);text-align:left;transition:background .15s,color .15s;position:relative}
+.nav-btn:hover{background:var(--bg-raised);color:var(--txt-hi)}
+.nav-btn.active{background:var(--accent-glow);color:var(--accent)}
+.nav-btn.active::before{content:'';position:absolute;left:0;top:25%;bottom:25%;width:3px;background:var(--accent);border-radius:0 3px 3px 0;margin-left:-6px}
+.nav-btn:focus-visible{outline:none;box-shadow:var(--focus)}
+.nav-icon{font-size:14px;opacity:.8;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--accent-glow);border:1px solid rgba(59,130,246,.25);color:var(--accent);font-size:9px;padding:1px 5px;border-radius:3px}
+
+/* CONTENT */
+.content{min-width:0}
+.panel{display:none}
+.panel.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARD */
+.card{background:var(--bg-card);border:1px solid var(--border-dim);border-radius:var(--r-xl);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+
+/* CLASSIC CALC DISPLAY */
+#calc-display{background:var(--bg-deep);padding:20px 22px 14px;border-bottom:1px solid var(--border-dim);min-height:108px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end;border-radius:var(--r-xl) var(--r-xl) 0 0}
+#calc-expr{font-size:12px;color:var(--txt-lo);min-height:17px;margin-bottom:6px;word-break:break-all;text-align:right}
+#calc-val{font-size:40px;font-weight:300;letter-spacing:-.02em}
+#calc-val.blink{animation:blink .1s ease}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* CALC GRID */
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.calc-btn{background:var(--bg-panel);border:1px solid var(--border-dim);color:var(--txt-hi);font-family:var(--mono);font-size:17px;padding:20px 0;cursor:pointer;transition:background .1s;user-select:none}
+.calc-btn:hover{background:var(--bg-hover)}
+.calc-btn:active{background:var(--border-mid)}
+.calc-btn:focus-visible{outline:none;z-index:1;box-shadow:inset 0 0 0 2px var(--accent)}
+.calc-btn.op{color:var(--accent);font-size:19px}
+.calc-btn.fn{color:var(--txt-mid);font-size:13px}
+.calc-btn.eq{background:var(--accent);color:#fff;font-size:21px;font-weight:600;grid-row:span 2;border-color:var(--accent-deep)}
+.calc-btn.eq:hover{background:#2563eb}
+.calc-btn.clr{color:var(--red)}
+.calc-btn.wide{grid-column:span 2}
+
+/* TOOL HEADER */
+.tool-header{display:flex;align-items:center;gap:10px;padding:18px 22px 16px;background:var(--bg-deep);border-bottom:1px solid var(--border-dim);border-radius:var(--r-xl) var(--r-xl) 0 0}
+.tool-badge{background:var(--accent-glow);border:1px solid rgba(59,130,246,.28);color:var(--accent);font-size:9px;letter-spacing:.12em;padding:3px 7px;border-radius:4px;font-weight:700;text-transform:uppercase;flex-shrink:0}
+.tool-title{font-family:var(--display);font-size:15px;font-weight:700}
+
+/* OPTIONS */
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px 22px;background:var(--bg-panel);border-bottom:1px solid var(--border-dim)}
+.opts-grid.single-col{grid-template-columns:1fr}
+fieldset.opt-group{border:none;padding:0}
+.opt-group legend{display:block;font-size:9px;letter-spacing:.14em;color:var(--txt-lo);text-transform:uppercase;margin-bottom:8px}
+.pill-row{display:flex;flex-wrap:wrap;gap:5px;list-style:none}
+.pill{padding:6px 12px;border-radius:var(--r-sm);border:1px solid var(--border-mid);background:var(--bg-raised);color:var(--txt-mid);font-family:var(--mono);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;user-select:none}
+.pill:hover{border-color:var(--border-lit);color:var(--txt-hi)}
+.pill.sel{background:var(--accent-glow);border-color:var(--accent);color:var(--accent)}
+.pill:focus-visible{outline:none;box-shadow:var(--focus)}
+
+/* INPUT */
+.input-section{padding:18px 22px;border-bottom:1px solid var(--border-dim)}
+.input-label{display:block;font-size:9px;letter-spacing:.14em;color:var(--txt-lo);text-transform:uppercase;margin-bottom:8px}
+.input-row{display:flex;align-items:stretch;gap:8px}
+.amount-field{flex:1;background:var(--bg-deep);border:1px solid var(--border-lit);border-radius:var(--r-md);color:var(--txt-hi);font-family:var(--mono);font-size:26px;font-weight:300;padding:12px 16px;outline:none;letter-spacing:-.01em;transition:border-color .2s,box-shadow .2s}
+.amount-field:focus{border-color:var(--accent);box-shadow:var(--focus)}
+.amount-field::placeholder{color:var(--txt-lo)}
+.amount-field.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(248,113,113,.2)}
+.amount-suffix{align-self:center;font-size:13px;color:var(--txt-mid);font-weight:500}
+.calc-action-btn{background:var(--accent);border:none;border-radius:var(--r-md);color:#fff;font-family:var(--mono);font-size:13px;font-weight:600;padding:0 20px;cursor:pointer;letter-spacing:.04em;transition:background .15s,transform .1s,box-shadow .15s;white-space:nowrap}
+.calc-action-btn:hover{background:var(--accent-deep);box-shadow:0 6px 20px rgba(59,130,246,.35);transform:translateY(-1px)}
+.calc-action-btn:active{transform:translateY(0)}
+.calc-action-btn:focus-visible{outline:none;box-shadow:var(--focus)}
+
+/* NUMPAD */
+.numpad{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:14px 22px 18px;border-bottom:1px solid var(--border-dim)}
+.np{background:var(--bg-raised);border:1px solid var(--border-dim);border-radius:var(--r-sm);color:var(--txt-hi);font-family:var(--mono);font-size:15px;padding:13px 0;cursor:pointer;transition:background .1s,border-color .1s;user-select:none}
+.np:hover{background:var(--bg-hover);border-color:var(--border-mid)}
+.np:active{background:var(--border-mid)}
+.np:focus-visible{outline:none;box-shadow:var(--focus)}
+.np.np-del{color:var(--amber);font-size:12px}
+.np.np-clr{color:var(--red);font-size:12px}
+.np.np-go{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;font-size:12px;letter-spacing:.05em;grid-column:span 2;box-shadow:0 4px 14px rgba(59,130,246,.3)}
+.np.np-go:hover{background:var(--accent-deep)}
+
+/* RESULTS */
+.results-section{padding:18px 22px 20px;display:none}
+.results-section.show{display:block}
+.results-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.results-label{font-size:9px;letter-spacing:.18em;color:var(--txt-lo);text-transform:uppercase}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.ghost-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:1px solid var(--border-mid);border-radius:var(--r-sm);color:var(--txt-lo);font-family:var(--mono);font-size:11px;padding:4px 10px;cursor:pointer;transition:all .15s;letter-spacing:.03em}
+.ghost-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ghost-btn:focus-visible{outline:none;box-shadow:var(--focus)}
+.ghost-btn.gbactive{border-color:var(--accent);color:var(--accent)}
+
+.result-list{display:flex;flex-direction:column;gap:2px}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-radius:var(--r-sm);background:var(--bg-raised)}
+.result-row.row-deduct{background:var(--red-dim)}
+.result-row.row-total{background:var(--green-dim);border:1px solid rgba(16,185,129,.18)}
+.result-row.row-sub{background:var(--amber-dim)}
+.row-lbl{font-size:12px;color:var(--txt-mid)}
+.row-lbl strong{color:var(--txt-hi);font-weight:600}
+.row-lbl small{font-size:10px;opacity:.7}
+.row-val{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.c-default{color:var(--txt-hi)}.c-green{color:var(--green)}.c-red{color:var(--red)}.c-amber{color:var(--amber)}
+.sep{height:1px;background:var(--border-dim);margin:6px 0}
+.copy-row{display:flex;justify-content:flex-end;margin-top:8px}
+
+/* FORMULA BOX */
+.formula-box{margin-top:12px;background:var(--bg-deep);border:1px solid var(--border-dim);border-radius:var(--r-md);padding:16px 18px;display:none}
+.formula-box.show{display:block;animation:fadeUp .18s ease}
+.formula-eyebrow{font-size:9px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:12px}
+.f-step{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px}
+.f-step:last-child{margin-bottom:0}
+.f-num{flex-shrink:0;background:var(--accent-glow);color:var(--accent);border-radius:4px;font-size:9px;font-weight:700;padding:2px 6px;margin-top:2px}
+.f-text{font-size:12px;color:var(--txt-mid);line-height:1.65}
+.f-text b{color:var(--txt-hi);font-weight:600}
+.f-code{display:inline-block;background:var(--bg-raised);border:1px solid var(--border-mid);border-radius:4px;padding:1px 7px;color:var(--accent);font-size:11px;font-family:var(--mono)}
+
+footer{margin-top:28px;font-size:11px;color:var(--txt-lo);letter-spacing:.06em;text-align:center}
+
+@media(max-width:640px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:static;display:flex;flex-wrap:wrap;border-radius:var(--r-lg);gap:2px;padding:6px}
+  .sidebar-section{display:none}
+  .nav-btn{width:auto;flex:1;justify-content:center;gap:5px;font-size:11px;margin:0;padding:9px 6px;border-radius:var(--r-sm)}
+  .nav-btn.active::before{display:none}
+  .opts-grid{grid-template-columns:1fr}
+  .amount-field{font-size:20px}
+  #calc-val{font-size:32px}
+  .input-row{flex-wrap:wrap}
+  .calc-action-btn{width:100%;padding:13px 0}
+}
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">İçeriğe geç</a>
+<div aria-live="polite" aria-atomic="true" class="sr-only" id="live-region"></div>
+
+<header class="site-header">
+  <p class="site-eyebrow">Muhasebe Araçları</p>
+  <h1 class="site-title">Hesap<span>Pro</span></h1>
+</header>
+
+<div class="app">
+
+  <!-- SIDEBAR NAV -->
+  <nav aria-label="Araç menüsü">
+    <div class="sidebar" role="tablist" aria-orientation="vertical">
+      <div class="sidebar-section" aria-hidden="true">Genel</div>
+      <button class="nav-btn active" id="nav-classic" role="tab"
+        aria-selected="true" aria-controls="panel-classic"
+        onclick="switchPanel('classic')">
+        <span class="nav-icon" aria-hidden="true">⊞</span> Hesap Makinesi
+      </button>
+
+      <div class="sidebar-section" aria-hidden="true">Muhasebe Araçları</div>
+      <button class="nav-btn" id="nav-tevkifat" role="tab"
+        aria-selected="false" aria-controls="panel-tevkifat"
+        onclick="switchPanel('tevkifat')">
+        <span class="nav-icon" aria-hidden="true">⊟</span> Tevkifatlı Fatura
+        <span class="nav-badge" aria-hidden="true">KDV</span>
+      </button>
+      <button class="nav-btn" id="nav-stopaj" role="tab"
+        aria-selected="false" aria-controls="panel-stopaj"
+        onclick="switchPanel('stopaj')">
+        <span class="nav-icon" aria-hidden="true">⊸</span> Brütleştirme
+        <span class="nav-badge" aria-hidden="true">Stopaj</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main id="main-content" tabindex="-1">
+
+    <!-- ══════════════ PANEL 1 — KLASİK ══════════════ -->
+    <section id="panel-classic" class="panel active card"
+      role="tabpanel" aria-labelledby="nav-classic">
+      <h2 class="sr-only">Klasik Hesap Makinesi</h2>
+
+      <div id="calc-display" aria-live="polite" aria-atomic="true">
+        <div id="calc-expr" aria-hidden="true"></div>
+        <output id="calc-val" aria-label="Hesap makinesi sonucu">0</output>
+      </div>
+
+      <div class="calc-grid" role="group" aria-label="Hesap makinesi tuşları">
+        <button class="calc-btn fn clr" onclick="c_fn('AC')" aria-label="Tümünü temizle (AC)">AC</button>
+        <button class="calc-btn fn" onclick="c_fn('+/-')" aria-label="Artı eksi işaret değiştir">+/−</button>
+        <button class="calc-btn fn" onclick="c_fn('%')" aria-label="Yüzde">%</button>
+        <button class="calc-btn op" onclick="c_fn('/')" aria-label="Böl">÷</button>
+        <button class="calc-btn" onclick="c_fn('7')">7</button>
+        <button class="calc-btn" onclick="c_fn('8')">8</button>
+        <button class="calc-btn" onclick="c_fn('9')">9</button>
+        <button class="calc-btn op" onclick="c_fn('*')" aria-label="Çarp">×</button>
+        <button class="calc-btn" onclick="c_fn('4')">4</button>
+        <button class="calc-btn" onclick="c_fn('5')">5</button>
+        <button class="calc-btn" onclick="c_fn('6')">6</button>
+        <button class="calc-btn op" onclick="c_fn('-')" aria-label="Çıkar">−</button>
+        <button class="calc-btn" onclick="c_fn('1')">1</button>
+        <button class="calc-btn" onclick="c_fn('2')">2</button>
+        <button class="calc-btn" onclick="c_fn('3')">3</button>
+        <button class="calc-btn op" onclick="c_fn('+')" aria-label="Topla">+</button>
+        <button class="calc-btn wide" onclick="c_fn('0')">0</button>
+        <button class="calc-btn" onclick="c_fn('.')" aria-label="Ondalık virgül">,</button>
+        <button class="calc-btn eq" onclick="c_fn('=')" aria-label="Eşittir">=</button>
+      </div>
+    </section>
+
+    <!-- ══════════════ PANEL 2 — TEVKİFAT ══════════════ -->
+    <section id="panel-tevkifat" class="panel card"
+      role="tabpanel" aria-labelledby="nav-tevkifat">
+
+      <div class="tool-header">
+        <span class="tool-badge" aria-hidden="true">KDV TEVKİFATI</span>
+        <h2 class="tool-title">Tevkifatlı Fatura Hesaplayıcı</h2>
+      </div>
+
+      <div class="opts-grid">
+        <fieldset class="opt-group">
+          <legend>KDV Oranı</legend>
+          <ul class="pill-row" role="group" aria-label="KDV oranı seçin">
+            <li><button class="pill" aria-pressed="false" onclick="t_kdv(1,this)">%1</button></li>
+            <li><button class="pill" aria-pressed="false" onclick="t_kdv(10,this)">%10</button></li>
+            <li><button class="pill sel" aria-pressed="true" onclick="t_kdv(20,this)">%20</button></li>
+          </ul>
+        </fieldset>
+        <fieldset class="opt-group">
+          <legend>Tevkifat Oranı</legend>
+          <ul class="pill-row" role="group" aria-label="Tevkifat oranı seçin">
+            <li><button class="pill" aria-pressed="false" onclick="t_oran('4/10',this)">4/10</button></li>
+            <li><button class="pill sel" aria-pressed="true" onclick="t_oran('7/10',this)">7/10</button></li>
+            <li><button class="pill" aria-pressed="false" onclick="t_oran('8/10',this)">8/10</button></li>
+            <li><button class="pill" aria-pressed="false" onclick="t_oran('9/10',this)">9/10</button></li>
+          </ul>
+        </fieldset>
+      </div>
+
+      <div class="input-section">
+        <label class="input-label" for="t-matrah">Fatura Matrahı (KDV hariç)</label>
+        <div class="input-row">
+          <input type="text" id="t-matrah" class="amount-field"
+            placeholder="0,00" inputmode="decimal" autocomplete="off"
+            aria-describedby="t-matrah-desc"
+            onkeydown="if(event.key==='Enter')tevk_hesapla()">
+          <span class="amount-suffix" aria-hidden="true">TL</span>
+          <button class="calc-action-btn" onclick="tevk_hesapla()">Hesapla</button>
+        </div>
+        <p id="t-matrah-desc" class="sr-only">KDV hariç fatura matrahını girin, ardından Hesapla düğmesine veya Enter tuşuna basın.</p>
+      </div>
+
+      <div class="numpad" role="group" aria-label="Sayısal tuş takımı">
+        <button class="np" onclick="np('t-matrah','7')">7</button>
+        <button class="np" onclick="np('t-matrah','8')">8</button>
+        <button class="np" onclick="np('t-matrah','9')">9</button>
+        <button class="np np-del" onclick="np('t-matrah','del')" aria-label="Son karakteri sil">⌫ Sil</button>
+        <button class="np" onclick="np('t-matrah','4')">4</button>
+        <button class="np" onclick="np('t-matrah','5')">5</button>
+        <button class="np" onclick="np('t-matrah','6')">6</button>
+        <button class="np np-clr" onclick="np('t-matrah','clr')" aria-label="Alanı temizle">AC</button>
+        <button class="np" onclick="np('t-matrah','1')">1</button>
+        <button class="np" onclick="np('t-matrah','2')">2</button>
+        <button class="np" onclick="np('t-matrah','3')">3</button>
+        <button class="np" onclick="np('t-matrah','0')">0</button>
+        <button class="np" onclick="np('t-matrah',',')" aria-label="Ondalık virgül">,</button>
+        <button class="np" onclick="np('t-matrah','000')" aria-label="Üç sıfır ekle">000</button>
+        <button class="np np-go" onclick="tevk_hesapla()">HESAPLA ↵</button>
+      </div>
+
+      <div class="results-section" id="tevk-results"
+        role="region" aria-label="Tevkifat sonuçları" aria-live="polite">
+        <div class="results-topbar">
+          <span class="results-label"><span class="live-dot" aria-hidden="true"></span>Sonuç</span>
+          <button class="ghost-btn" id="tevk-info-btn"
+            aria-expanded="false" aria-controls="tevk-formula"
+            onclick="toggleFormula('tevk-formula','tevk-info-btn')">
+            ⓘ Nasıl hesaplandı?
+          </button>
+        </div>
+        <ul class="result-list" id="tevk-list" aria-label="Hesaplama sonuçları"></ul>
+        <div class="copy-row">
+          <button class="ghost-btn" id="tevk-copy" onclick="copyR('tevk')" aria-label="Sonuçları panoya kopyala">⊕ Sonuçları kopyala</button>
+        </div>
+        <div class="formula-box" id="tevk-formula"
+          role="region" aria-label="Adım adım hesaplama açıklaması">
+          <p class="formula-eyebrow">Adım adım hesaplama</p>
+          <div id="tevk-steps"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ PANEL 3 — BRÜTLEŞTIRME ══════════════ -->
+    <section id="panel-stopaj" class="panel card"
+      role="tabpanel" aria-labelledby="nav-stopaj">
+
+      <div class="tool-header">
+        <span class="tool-badge" aria-hidden="true">STOPAJ</span>
+        <h2 class="tool-title">Net → Brüt Hesaplayıcı (Brütleştirme)</h2>
+      </div>
+
+      <div class="opts-grid single-col">
+        <fieldset class="opt-group">
+          <legend>Stopaj Oranı</legend>
+          <ul class="pill-row" role="group" aria-label="Stopaj oranı seçin">
+            <li><button class="pill sel" aria-pressed="true" onclick="s_oran(10,this)">%10 <small style="opacity:.6">SMM</small></button></li>
+            <li><button class="pill" aria-pressed="false" onclick="s_oran(20,this)">%20 <small style="opacity:.6">Kira</small></button></li>
+            <li><button class="pill" aria-pressed="false" onclick="s_oran(15,this)">%15 <small style="opacity:.6">Kar payı</small></button></li>
+            <li><button class="pill" aria-pressed="false" onclick="s_oran(25,this)">%25</button></li>
+          </ul>
+        </fieldset>
+        <fieldset class="opt-group" style="margin-top:12px">
+          <legend>KDV Oranı <small style="font-size:9px;color:var(--txt-lo)">(opsiyonel)</small></legend>
+          <ul class="pill-row" role="group" aria-label="KDV oranı seçin">
+            <li><button class="pill sel" aria-pressed="true" onclick="s_kdv(0,this)">KDV Yok</button></li>
+            <li><button class="pill" aria-pressed="false" onclick="s_kdv(10,this)">%10</button></li>
+            <li><button class="pill" aria-pressed="false" onclick="s_kdv(20,this)">%20</button></li>
+          </ul>
+        </fieldset>
+      </div>
+
+      <div class="input-section">
+        <label class="input-label" for="s-net">Net Tutar (ele geçecek)</label>
+        <div class="input-row">
+          <input type="text" id="s-net" class="amount-field"
+            placeholder="0,00" inputmode="decimal" autocomplete="off"
+            aria-describedby="s-net-desc"
+            onkeydown="if(event.key==='Enter')stopaj_hesapla()">
+          <span class="amount-suffix" aria-hidden="true">TL</span>
+          <button class="calc-action-btn" onclick="stopaj_hesapla()">Hesapla</button>
+        </div>
+        <p id="s-net-desc" class="sr-only">Anlaşılan net tutarı girin. Brüt tutar ve stopaj kesintisi otomatik hesaplanır.</p>
+      </div>
+
+      <div class="numpad" role="group" aria-label="Sayısal tuş takımı">
+        <button class="np" onclick="np('s-net','7')">7</button>
+        <button class="np" onclick="np('s-net','8')">8</button>
+        <button class="np" onclick="np('s-net','9')">9</button>
+        <button class="np np-del" onclick="np('s-net','del')" aria-label="Son karakteri sil">⌫ Sil</button>
+        <button class="np" onclick="np('s-net','4')">4</button>
+        <button class="np" onclick="np('s-net','5')">5</button>
+        <button class="np" onclick="np('s-net','6')">6</button>
+        <button class="np np-clr" onclick="np('s-net','clr')" aria-label="Alanı temizle">AC</button>
+        <button class="np" onclick="np('s-net','1')">1</button>
+        <button class="np" onclick="np('s-net','2')">2</button>
+        <button class="np" onclick="np('s-net','3')">3</button>
+        <button class="np" onclick="np('s-net','0')">0</button>
+        <button class="np" onclick="np('s-net',',')" aria-label="Ondalık virgül">,</button>
+        <button class="np" onclick="np('s-net','000')" aria-label="Üç sıfır ekle">000</button>
+        <button class="np np-go" onclick="stopaj_hesapla()">HESAPLA ↵</button>
+      </div>
+
+      <div class="results-section" id="stopaj-results"
+        role="region" aria-label="Brütleştirme sonuçları" aria-live="polite">
+        <div class="results-topbar">
+          <span class="results-label"><span class="live-dot" aria-hidden="true"></span>Sonuç</span>
+          <button class="ghost-btn" id="stopaj-info-btn"
+            aria-expanded="false" aria-controls="stopaj-formula"
+            onclick="toggleFormula('stopaj-formula','stopaj-info-btn')">
+            ⓘ Nasıl hesaplandı?
+          </button>
+        </div>
+        <ul class="result-list" id="stopaj-list" aria-label="Hesaplama sonuçları"></ul>
+        <div class="copy-row">
+          <button class="ghost-btn" id="stopaj-copy" onclick="copyR('stopaj')" aria-label="Sonuçları panoya kopyala">⊕ Sonuçları kopyala</button>
+        </div>
+        <div class="formula-box" id="stopaj-formula"
+          role="region" aria-label="Adım adım hesaplama açıklaması">
+          <p class="formula-eyebrow">Adım adım hesaplama</p>
+          <div id="stopaj-steps"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer><p>HesapPro · Muhasebe Araçları · v2.0</p></footer>
+
+<script>
+/* ── UTILS ── */
+const $=id=>document.getElementById(id);
+const fmt=n=>n.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
+function parseAmt(s){if(!s)return 0;return parseFloat(s.replace(/\./g,'').replace(',','.'))||0;}
+function announce(m){const el=$('live-region');el.textContent='';requestAnimationFrame(()=>el.textContent=m);}
+function loadP(){try{return JSON.parse(localStorage.getItem('hp2')||'{}')}catch{return{}}}
+function saveP(o){try{localStorage.setItem('hp2',JSON.stringify({...loadP(),...o}))}catch{}}
+
+/* ── NAV ── */
+function switchPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-selected','false')});
+  $('panel-'+id).classList.add('active');
+  $('nav-'+id).classList.add('active');
+  $('nav-'+id).setAttribute('aria-selected','true');
+  $('main-content').focus();
+}
+
+/* ── SHARED NUMPAD ── */
+function np(fid,key){
+  const el=$(fid);let v=el.value;
+  if(key==='clr'){el.value='';return}
+  if(key==='del'){el.value=v.slice(0,-1);return}
+  if(key===','){if(!v.includes(','))el.value=v+',';return}
+  if(key==='000'){el.value=v+'000';return}
+  el.value=v+key;
+}
+
+/* ── FORMULA TOGGLE ── */
+function toggleFormula(boxId,btnId){
+  const box=$(boxId),btn=$(btnId),open=box.classList.contains('show');
+  if(open){box.classList.remove('show');btn.setAttribute('aria-expanded','false');btn.classList.remove('gbactive');}
+  else{box.classList.add('show');btn.setAttribute('aria-expanded','true');btn.classList.add('gbactive');}
+}
+
+/* ── COPY ── */
+const store={};
+function copyR(key){
+  if(!store[key])return;
+  const btn=$(key+'-copy');
+  function onSuccess(){
+    btn.textContent='✓ Kopyalandı';btn.style.color='var(--green)';btn.style.borderColor='var(--green)';
+    announce('Sonuçlar panoya kopyalandı');
+    setTimeout(()=>{btn.textContent='⊕ Sonuçları kopyala';btn.style.color='';btn.style.borderColor=''},2200);
+  }
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(store[key]).then(onSuccess).catch(()=>fallbackCopy(store[key],onSuccess));
+  } else { fallbackCopy(store[key],onSuccess); }
+}
+function fallbackCopy(text,cb){
+  const ta=document.createElement('textarea');
+  ta.value=text;ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');cb();}catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* ── CLASSIC CALC ── */
+const CS={cur:'0',prev:null,op:null,eq:false};
+const OPS={'+':'+','-':'−','*':'×','/':'÷'};
+function cfmt(n){const s=String(n);if(s.includes('.')){const[i,d]=s.split('.');return i.replace(/\B(?=(\d{3})+(?!\d))/g,'.')+','+d}return s.replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+function ceval(a,op,b){a=parseFloat(a);b=parseFloat(b);const r=op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:b!==0?a/b:a;return Math.round(r*1e10)/1e10}
+function cupdate(v){const el=$('calc-val');el.textContent=v;el.classList.remove('blink');void el.offsetWidth;el.classList.add('blink')}
+function c_fn(key){
+  const s=CS;
+  if((key>='0'&&key<='9')||key==='.'){
+    if(s.eq){s.cur='0';$('calc-expr').textContent='';s.eq=false}
+    if(key==='.'&&s.cur.includes('.'))return;
+    s.cur=s.cur==='0'&&key!=='.'?key:s.cur+key;
+    cupdate(cfmt(s.cur));return;
+  }
+  if(key==='AC'){s.cur='0';s.prev=null;s.op=null;s.eq=false;cupdate('0');$('calc-expr').textContent='';return}
+  if(key==='+/-'){s.cur=String(-parseFloat(s.cur));cupdate(cfmt(s.cur));return}
+  if(key==='%'){s.cur=String(parseFloat(s.cur)/100);cupdate(cfmt(s.cur));return}
+  if(['+','-','*','/'].includes(key)){
+    if(s.prev!==null&&s.op){const r=ceval(s.prev,s.op,s.cur);s.prev=r;s.cur=String(r)}else s.prev=parseFloat(s.cur);
+    s.op=key;s.eq=false;$('calc-expr').textContent=cfmt(String(s.prev))+' '+OPS[key];s.cur='0';return;
+  }
+  if(key==='='){
+    if(s.prev===null||!s.op)return;
+    const r=ceval(s.prev,s.op,s.cur);
+    $('calc-expr').textContent=cfmt(String(s.prev))+' '+OPS[s.op]+' '+cfmt(s.cur)+' =';
+    s.cur=String(r);s.prev=null;s.op=null;s.eq=true;
+    cupdate(cfmt(s.cur));announce('Sonuç: '+cfmt(s.cur));
+  }
+}
+document.addEventListener('keydown',e=>{
+  if(!$('panel-classic').classList.contains('active'))return;
+  if(document.activeElement.matches('input'))return;
+  if(e.key>='0'&&e.key<='9')c_fn(e.key);
+  else if(e.key==='+')c_fn('+');
+  else if(e.key==='-')c_fn('-');
+  else if(e.key==='*')c_fn('*');
+  else if(e.key==='/'){e.preventDefault();c_fn('/')}
+  else if(e.key==='Enter'||e.key==='=')c_fn('=');
+  else if(e.key==='Backspace'){if(CS.cur.length>1)CS.cur=CS.cur.slice(0,-1);else CS.cur='0';cupdate(cfmt(CS.cur))}
+  else if(e.key==='Escape')c_fn('AC');
+  else if(e.key==='.')c_fn('.');
+});
+
+/* ── TEVKİFAT ── */
+let T={kdv:20,oran:'7/10'};let tLast=0;
+function pillSel(group,el){group.forEach(p=>{p.classList.remove('sel');p.setAttribute('aria-pressed','false')});el.classList.add('sel');el.setAttribute('aria-pressed','true')}
+function t_kdv(v,el){T.kdv=v;pillSel(document.querySelectorAll('#panel-tevkifat .opt-group:first-child .pill'),el);saveP({t_kdv:v});if(tLast>0)tevk_hesapla()}
+function t_oran(v,el){T.oran=v;pillSel(document.querySelectorAll('#panel-tevkifat .opt-group:nth-child(2) .pill'),el);saveP({t_oran:v});if(tLast>0)tevk_hesapla()}
+function tevk_hesapla(){
+  const inp=$('t-matrah'),matrah=parseAmt(inp.value);
+  if(matrah<=0){inp.classList.add('error');inp.setAttribute('aria-invalid','true');announce('Hata: Geçerli matrah girin');setTimeout(()=>{inp.classList.remove('error');inp.setAttribute('aria-invalid','false')},1400);inp.focus();return}
+  inp.classList.remove('error');inp.setAttribute('aria-invalid','false');tLast=matrah;
+  const[num,den]=T.oran.split('/').map(Number);
+  const kdvTam=matrah*(T.kdv/100);
+  const tevk=kdvTam*(num/den);
+  const odKdv=kdvTam-tevk;
+  const toplam=matrah+kdvTam;
+  $('tevk-list').innerHTML=`
+    <li class="result-row"><span class="row-lbl">Matrah</span><span class="row-val c-default">${fmt(matrah)} TL</span></li>
+    <li class="result-row row-sub"><span class="row-lbl">KDV Tutarı (tam, %${T.kdv})</span><span class="row-val c-amber">${fmt(kdvTam)} TL</span></li>
+    <li class="sep" role="separator" aria-hidden="true"></li>
+    <li class="result-row row-deduct"><span class="row-lbl">Tevkifat Kesintisi <small>(${T.oran} × KDV — alıcı devlete öder)</small></span><span class="row-val c-red">− ${fmt(tevk)} TL</span></li>
+    <li class="result-row"><span class="row-lbl">Ödenecek KDV (satıcıya)</span><span class="row-val c-default">${fmt(odKdv)} TL</span></li>
+    <li class="sep" role="separator" aria-hidden="true"></li>
+    <li class="result-row row-total"><span class="row-lbl"><strong>Toplam Fatura Tutarı (KDV dahil)</strong></span><span class="row-val c-green">${fmt(toplam)} TL</span></li>`;
+  $('tevk-steps').innerHTML=`
+    <div class="f-step"><span class="f-num">1</span><p class="f-text">Tam KDV hesabı:<br><span class="f-code">${fmt(matrah)} × %${T.kdv} = <b>${fmt(kdvTam)} TL</b></span></p></div>
+    <div class="f-step"><span class="f-num">2</span><p class="f-text">Tevkifat, KDV'nin <b>${T.oran}</b>'lik payıdır — alıcı bu tutarı doğrudan devlete öder:<br><span class="f-code">${fmt(kdvTam)} × (${num}÷${den}) = <b>${fmt(tevk)} TL</b></span></p></div>
+    <div class="f-step"><span class="f-num">3</span><p class="f-text">Satıcıya ödenecek KDV:<br><span class="f-code">${fmt(kdvTam)} − ${fmt(tevk)} = <b>${fmt(odKdv)} TL</b></span></p></div>
+    <div class="f-step"><span class="f-num">4</span><p class="f-text">Toplam fatura (matrah + tam KDV):<br><span class="f-code">${fmt(matrah)} + ${fmt(kdvTam)} = <b>${fmt(toplam)} TL</b></span><br>Tevkifat toplam tutarı değiştirmez; sadece KDV'nin ödeme akışını ikiye böler.</p></div>`;
+  store['tevk']=`Tevkifatlı Fatura\nKDV: %${T.kdv} | Tevkifat: ${T.oran}\n${'─'.repeat(32)}\nMatrah:          ${fmt(matrah)} TL\nKDV (tam):       ${fmt(kdvTam)} TL\nTevkifat kes.:   ${fmt(tevk)} TL\nÖdenecek KDV:    ${fmt(odKdv)} TL\nToplam fatura:   ${fmt(toplam)} TL`;
+  $('tevk-results').classList.add('show');
+  announce(`Hesaplama tamamlandı. Toplam fatura: ${fmt(toplam)} TL`);
+  $('tevk-results').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ── BRÜTLEŞTIRME / STOPAJ ── */
+let S={stopaj:10,kdv:0};let sLast=0;
+function s_oran(v,el){S.stopaj=v;pillSel(document.querySelectorAll('#panel-stopaj .opt-group:first-child .pill'),el);saveP({s_st:v});if(sLast>0)stopaj_hesapla()}
+function s_kdv(v,el){S.kdv=v;pillSel(document.querySelectorAll('#panel-stopaj .opt-group:nth-child(2) .pill'),el);saveP({s_kdv:v});if(sLast>0)stopaj_hesapla()}
+function stopaj_hesapla(){
+  const inp=$('s-net'),net=parseAmt(inp.value);
+  if(net<=0){inp.classList.add('error');inp.setAttribute('aria-invalid','true');announce('Hata: Geçerli net tutar girin');setTimeout(()=>{inp.classList.remove('error');inp.setAttribute('aria-invalid','false')},1400);inp.focus();return}
+  inp.classList.remove('error');inp.setAttribute('aria-invalid','false');sLast=net;
+  const rate=S.stopaj/100;
+  const brut=net/(1-rate);          // brütleştirme formülü
+  const stopaj=brut*rate;           // brüt × oran = stopaj
+  const kdvT=S.kdv>0?brut*(S.kdv/100):0;
+  const tahsilat=net+kdvT;
+  const brutTotal=brut+kdvT;
+
+  let rows=`
+    <li class="result-row"><span class="row-lbl">Net Tutar (sözleşme / anlaşılan)</span><span class="row-val c-default">${fmt(net)} TL</span></li>
+    <li class="sep" role="separator" aria-hidden="true"></li>
+    <li class="result-row row-sub"><span class="row-lbl"><strong>Brüt Tutar</strong> (makbuz matrahı)</span><span class="row-val c-amber">${fmt(brut)} TL</span></li>
+    <li class="result-row row-deduct"><span class="row-lbl">Stopaj Kesintisi (%${S.stopaj} — alıcı muhtasarla öder)</span><span class="row-val c-red">− ${fmt(stopaj)} TL</span></li>`;
+  if(S.kdv>0){rows+=`
+    <li class="sep" role="separator" aria-hidden="true"></li>
+    <li class="result-row row-sub"><span class="row-lbl">KDV (%${S.kdv}, brüt üzerinden)</span><span class="row-val c-amber">+ ${fmt(kdvT)} TL</span></li>
+    <li class="result-row row-total"><span class="row-lbl"><strong>Alıcının Toplam Ödemesi</strong></span><span class="row-val c-green">${fmt(brutTotal)} TL</span></li>
+    <li class="result-row"><span class="row-lbl">Satıcının Tahsil Edeceği (net + KDV)</span><span class="row-val c-default">${fmt(tahsilat)} TL</span></li>`;}
+  else{rows+=`
+    <li class="result-row row-total"><span class="row-lbl"><strong>Satıcıya Ödenecek Tutar</strong></span><span class="row-val c-green">${fmt(net)} TL</span></li>`;}
+  $('stopaj-list').innerHTML=rows;
+
+  const kdvStep=S.kdv>0?`
+    <div class="f-step"><span class="f-num">3</span><p class="f-text">KDV brüt tutar üzerinden hesaplanır:<br><span class="f-code">${fmt(brut)} × %${S.kdv} = <b>${fmt(kdvT)} TL</b></span><br>Alıcının toplam çıkışı: <b>${fmt(brutTotal)} TL</b> (bunun ${fmt(stopaj)} TL'si devlete, ${fmt(tahsilat)} TL'si satıcıya gider).</p></div>`
+    :`<div class="f-step"><span class="f-num">3</span><p class="f-text">KDV uygulanmadığı için satıcının tahsil edeceği tutar net tutardır: <b>${fmt(net)} TL</b></p></div>`;
+  $('stopaj-steps').innerHTML=`
+    <div class="f-step"><span class="f-num">1</span><p class="f-text"><b>Brütleştirme:</b> Net tutar, stopaj sonrası elde kalacak orana bölünür.<br><span class="f-code">${fmt(net)} ÷ ${1-rate} = <b>${fmt(brut)} TL</b></span><br>Bu, makbuza yazılacak <b>brüt matrah</b>tır.</p></div>
+    <div class="f-step"><span class="f-num">2</span><p class="f-text">Stopaj brüt tutar üzerinden hesaplanır:<br><span class="f-code">${fmt(brut)} × %${S.stopaj} = <b>${fmt(stopaj)} TL</b></span><br>Alıcı bu tutarı muhtasar beyanname ile devlete öder. Satıcıya <b>${fmt(net)} TL</b> kalır.</p></div>
+    ${kdvStep}
+    <div class="f-step"><span class="f-num">✓</span><p class="f-text"><b>Kontrol:</b> <span class="f-code">${fmt(brut)} − ${fmt(stopaj)} = <b>${fmt(net)} TL ✓</b></span></p></div>`;
+
+  const kdvLine=S.kdv>0?`\nKDV (%${S.kdv}):        ${fmt(kdvT)} TL\nTahsilat (net+KDV): ${fmt(tahsilat)} TL`:'';
+  store['stopaj']=`Brütleştirme (Net → Brüt)\nStopaj: %${S.stopaj}${S.kdv>0?' | KDV: %'+S.kdv:''}\n${'─'.repeat(32)}\nNet Tutar:          ${fmt(net)} TL\nBrüt Tutar:         ${fmt(brut)} TL\nStopaj Kesintisi:   ${fmt(stopaj)} TL${kdvLine}`;
+  $('stopaj-results').classList.add('show');
+  announce(`Brütleştirme tamamlandı. Brüt: ${fmt(brut)} TL, Stopaj: ${fmt(stopaj)} TL`);
+  $('stopaj-results').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ── LOAD PREFS ── */
+(function(){
+  const p=loadP();
+  if(p.t_kdv){T.kdv=p.t_kdv;document.querySelectorAll('#panel-tevkifat .opt-group:first-child .pill').forEach(el=>{const match=el.textContent.trim().startsWith('%'+p.t_kdv);el.classList.toggle('sel',match);el.setAttribute('aria-pressed',match?'true':'false')})}
+  if(p.t_oran){T.oran=p.t_oran;document.querySelectorAll('#panel-tevkifat .opt-group:nth-child(2) .pill').forEach(el=>{const match=el.textContent.trim().startsWith(p.t_oran);el.classList.toggle('sel',match);el.setAttribute('aria-pressed',match?'true':'false')})}
+  if(p.s_st){S.stopaj=p.s_st;document.querySelectorAll('#panel-stopaj .opt-group:first-child .pill').forEach(el=>{const match=el.textContent.trim().startsWith('%'+p.s_st);el.classList.toggle('sel',match);el.setAttribute('aria-pressed',match?'true':'false')})}
+  if(p.s_kdv!==undefined){S.kdv=p.s_kdv;document.querySelectorAll('#panel-stopaj .opt-group:nth-child(2) .pill').forEach(el=>{const txt=el.textContent.trim();const match=p.s_kdv===0?txt==='KDV Yok':txt.startsWith('%'+p.s_kdv);el.classList.toggle('sel',match);el.setAttribute('aria-pressed',match?'true':'false')})}
+})();
+</script>
+</body>
+</html>
