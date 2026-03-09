@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HesapPro — Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #ffffff;
+    --surface:  #f8fafc;
+    --surface2: #f1f5f9;
+    --border:   #e2e8f0;
+    --dark:     #0f172a;
+    --mid:      #475569;
+    --light:    #94a3b8;
+    --accent:   #3b82f6;
+    --accent-l: #eff6ff;
+    --green:    #10b981;
+    --green-l:  #ecfdf5;
+    --amber:    #f59e0b;
+    --amber-l:  #fffbeb;
+    --red:      #f87171;
+    --red-l:    #fef2f2;
+    --app-bg:   #07090f;
+    --app-card: #0f1525;
+    --app-r:    #182030;
+    --txt-hi:   #eef2ff;
+    --txt-mid:  #94a3c4;
+    --app-bord: #1a2540;
+    --r4: 4px; --r6: 6px; --r8: 8px; --r12: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,.10);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── Layout ── */
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+  section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  section:last-child { border-bottom: none; }
+
+  /* ── Sec label ── */
+  .sec-label {
+    font-size: 11px; font-weight: 700; letter-spacing: .1em;
+    color: var(--accent); text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .sec-label::after {
+    content: ''; display: block; height: 1px;
+    background: var(--border); margin-top: 6px;
+  }
+
+  h2 { font-size: 28px; font-weight: 700; color: var(--dark); margin-bottom: 16px; line-height: 1.25; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--dark); margin-bottom: 8px; }
+  p  { color: var(--mid); margin-bottom: 14px; }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--dark);
+    padding: 72px 0 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent);
+  }
+  .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .hero-chip {
+    display: inline-block;
+    background: rgba(59,130,246,.15); color: #93c5fd;
+    font-size: 11px; font-weight: 600; letter-spacing: .08em;
+    padding: 5px 12px; border-radius: 20px; margin-bottom: 20px;
+  }
+  .hero h1 { font-size: 48px; font-weight: 700; line-height: 1.1; margin-bottom: 8px; }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub { color: var(--txt-mid); font-size: 15px; margin-bottom: 28px; }
+  .hero-meta { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+  .meta-item label { display: block; font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--txt-mid); text-transform: uppercase; margin-bottom: 4px; }
+  .meta-item span  { font-size: 13px; color: var(--txt-hi); font-weight: 500; }
+
+  /* ── App mockup ── */
+  .app-frame {
+    background: var(--app-bg);
+    border: 1px solid var(--app-bord);
+    border-radius: var(--r12);
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    height: 280px;
+  }
+  .app-sidebar {
+    width: 110px; min-width: 110px;
+    background: var(--app-card);
+    padding: 16px 0;
+    border-right: 1px solid var(--app-bord);
+  }
+  .app-logo { padding: 0 12px 16px; font-size: 13px; font-weight: 700; color: var(--txt-hi); }
+  .app-logo span { color: var(--accent); }
+  .nav-item {
+    padding: 9px 12px; font-size: 11px; color: var(--txt-mid);
+    cursor: default; border-left: 2px solid transparent;
+    transition: all .15s;
+  }
+  .nav-item.active {
+    background: rgba(59,130,246,.1); color: var(--accent);
+    border-left-color: var(--accent);
+  }
+  .app-content { flex: 1; padding: 16px; overflow: hidden; }
+
+  /* Tevkifat içerik */
+  .tev-title { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
+  .tev-input {
+    background: var(--app-bg);
+    border: 1px solid var(--accent);
+    border-radius: var(--r4); padding: 8px 12px;
+    color: var(--txt-hi); font-size: 15px; font-weight: 700;
+    text-align: right; margin-bottom: 10px; font-family: monospace;
+  }
+  .pill-group { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .pill {
+    padding: 4px 10px; border-radius: 20px; font-size: 11px;
+    border: 1px solid var(--app-bord); color: var(--txt-mid);
+    cursor: default;
+  }
+  .pill.active { background: rgba(59,130,246,.1); border-color: var(--accent); color: var(--accent); }
+  .result-rows { display: flex; flex-direction: column; gap: 4px; }
+  .result-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--app-r); border-radius: var(--r4); padding: 6px 10px;
+    font-size: 11px;
+  }
+  .result-row .rl { color: var(--txt-mid); }
+  .result-row .rv { font-weight: 700; font-family: monospace; }
+  .rv.green  { color: #10b981; }
+  .rv.amber  { color: #f59e0b; }
+  .rv.red    { color: #f87171; }
+  .rv.white  { color: var(--txt-hi); }
+
+  /* ── Metrics ── */
+  .metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 40px; }
+  .metric-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r8); padding: 20px; box-shadow: var(--shadow);
+  }
+  .metric-num { font-size: 32px; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 6px; }
+  .metric-title { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+  .metric-desc  { font-size: 12px; color: var(--light); }
+
+  /* ── Info box ── */
+  .info-box {
+    border-radius: var(--r8); padding: 20px 24px; margin: 20px 0;
+  }
+  .info-box.accent { background: var(--accent-l); border: 1px solid rgba(59,130,246,.25); }
+  .info-box.amber  { background: var(--amber-l);  border: 1px solid rgba(245,158,11,.25); }
+  .info-box.green  { background: var(--green-l);  border: 1px solid rgba(16,185,129,.25); }
+  .info-box.dark   { background: var(--dark); }
+  .info-box-label  { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .info-box.accent .info-box-label { color: var(--accent); }
+  .info-box.amber  .info-box-label { color: var(--amber); }
+  .info-box.green  .info-box-label { color: var(--green); }
+  .info-box p { margin: 0; }
+  .info-box.accent p { color: var(--dark); }
+  .info-box.amber  p { color: var(--dark); }
+  .info-box.green  p { color: var(--dark); }
+
+  /* ── Grid 2 col ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+  /* ── Scenario card ── */
+  .scenario-card {
+    border-radius: var(--r8); padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .scenario-card.accent { background: var(--accent-l); border: 1px solid rgba(59,130,246,.3); }
+  .scenario-card.green  { background: var(--green-l);  border: 1px solid rgba(16,185,129,.3); }
+  .scenario-num { font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+  .scenario-card.accent .scenario-num { color: var(--accent); }
+  .scenario-card.green  .scenario-num { color: var(--green); }
+
+  /* ── Persona ── */
+  .persona-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r8); padding: 24px; display: flex; gap: 24px;
+    box-shadow: var(--shadow);
+  }
+  .avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent-l); display: flex; align-items: center;
+    justify-content: center; font-size: 20px; font-weight: 700;
+    color: var(--accent); flex-shrink: 0;
+  }
+  .persona-details { flex: 1; }
+  .persona-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .persona-role { font-size: 13px; color: var(--mid); margin-bottom: 12px; }
+  .persona-attrs { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .attr-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+  .attr-val   { font-size: 13px; color: var(--mid); }
+
+  /* ── Timeline ── */
+  .timeline { display: flex; align-items: flex-start; gap: 0; margin: 24px 0; }
+  .t-step { flex: 1; text-align: center; position: relative; }
+  .t-step:not(:last-child)::after {
+    content: ''; position: absolute; top: 14px; left: 50%; width: 100%;
+    height: 1px; background: var(--border);
+  }
+  .t-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: white; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px; position: relative; z-index: 1;
+  }
+  .t-dot.done { background: var(--green); }
+  .t-title { font-size: 12px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+  .t-desc  { font-size: 11px; color: var(--light); }
+
+  /* ── Before / After ── */
+  .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .ba-card { border-radius: var(--r8); padding: 20px; box-shadow: var(--shadow); }
+  .ba-card.before { background: var(--red-l);  border: 1px solid rgba(248,113,113,.3); }
+  .ba-card.after  { background: var(--green-l); border: 1px solid rgba(16,185,129,.3); }
+  .ba-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .ba-card.before .ba-label { color: var(--red); }
+  .ba-card.after  .ba-label { color: var(--green); }
+  .ba-card h3 { margin-bottom: 4px; font-size: 14px; }
+  .ba-problem { font-size: 12px; margin-top: 10px; padding: 8px 12px; border-radius: var(--r4); }
+  .ba-card.before .ba-problem { background: rgba(248,113,113,.15); color: var(--red); }
+  .ba-card.after  .ba-problem { background: rgba(16,185,129,.15); color: var(--green); }
+  .ba-mini { background: var(--app-bg); border-radius: var(--r6); padding: 12px; margin: 12px 0; }
+  .ba-mini-label { font-size: 10px; color: var(--txt-mid); margin-bottom: 6px; }
+  .ba-mini-row { display: flex; gap: 4px; margin-bottom: 4px; }
+  .ba-tab { background: var(--app-r); border-radius: 3px; padding: 3px 8px; font-size: 10px; color: var(--txt-mid); }
+  .ba-tab.active { background: rgba(59,130,246,.2); color: var(--accent); }
+  .ba-nav { display: flex; flex-direction: column; gap: 3px; }
+  .ba-nav-item { padding: 5px 8px; border-radius: 3px; font-size: 10px; color: var(--txt-mid); border-left: 2px solid transparent; }
+  .ba-nav-item.active { background: rgba(59,130,246,.1); color: var(--accent); border-left-color: var(--accent); }
+
+  /* ── Test tablosu ── */
+  .test-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  .test-table th { background: var(--surface2); padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; color: var(--light); letter-spacing: .06em; text-transform: uppercase; }
+  .test-table td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .test-table tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; background: var(--green-l); color: var(--green); }
+
+  /* ── Decision cards ── */
+  .decision-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r8); padding: 20px 20px 20px 16px;
+    box-shadow: var(--shadow); border-left: 3px solid;
+  }
+  .decision-card.accent { border-left-color: var(--accent); }
+  .decision-card.amber  { border-left-color: var(--amber); }
+  .decision-card.green  { border-left-color: var(--green); }
+  .decision-card.red    { border-left-color: var(--red); }
+
+  /* ── 3 screen grid ── */
+  .screens-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin: 20px 0; }
+  .screen-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r8); padding: 16px; text-align: center; }
+  .screen-card h3 { font-size: 14px; margin-bottom: 4px; }
+  .screen-card p  { font-size: 12px; color: var(--light); margin-bottom: 12px; }
+  .screen-mini { background: var(--app-bg); border-radius: var(--r6); height: 120px; display: flex; overflow: hidden; }
+  .screen-mini-sb { width: 36px; background: var(--app-card); padding: 8px 4px; flex-shrink: 0; }
+  .screen-mini-dot { width: 18px; height: 4px; border-radius: 2px; margin: 3px auto; background: var(--app-r); }
+  .screen-mini-dot.active { background: var(--accent); }
+  .screen-mini-content { flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .smc-bar { height: 10px; border-radius: 2px; background: var(--app-r); }
+  .smc-bar.accent { background: rgba(59,130,246,.3); width: 60%; }
+  .smc-result { display: flex; justify-content: space-between; padding: 3px 6px; background: var(--app-r); border-radius: 2px; }
+  .smc-r-label { width: 40%; height: 6px; border-radius: 2px; background: rgba(255,255,255,.1); align-self: center; }
+  .smc-r-val   { font-size: 8px; font-weight: 700; font-family: monospace; }
+
+  /* ── Breakpoint viz ── */
+  .bp-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin: 20px 0; }
+  .bp-arrow { font-size: 20px; color: var(--light); text-align: center; }
+  .bp-card { border-radius: var(--r8); padding: 16px; }
+  .bp-card.desktop { background: var(--accent-l); border: 1px solid rgba(59,130,246,.25); }
+  .bp-card.mobile  { background: var(--green-l);  border: 1px solid rgba(16,185,129,.25); }
+  .bp-title { font-size: 12px; font-weight: 700; margin-bottom: 10px; }
+  .bp-card.desktop .bp-title { color: var(--accent); }
+  .bp-card.mobile  .bp-title { color: var(--green); }
+  .bp-layout { display: flex; gap: 4px; height: 48px; border-radius: var(--r4); overflow: hidden; margin-bottom: 8px; }
+  .bp-sidebar { width: 30%; background: rgba(59,130,246,.15); border-radius: var(--r4); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--accent); font-weight: 600; }
+  .bp-content { flex: 1; background: rgba(59,130,246,.05); border-radius: var(--r4); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--mid); }
+  .bp-mob-layout { display: flex; flex-direction: column; gap: 3px; height: 48px; }
+  .bp-mob-top { height: 14px; background: rgba(16,185,129,.2); border-radius: var(--r4); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--green); font-weight: 600; }
+  .bp-mob-body { flex: 1; background: rgba(16,185,129,.05); border-radius: var(--r4); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--mid); }
+  .bp-desc { font-size: 12px; color: var(--mid); }
+
+  /* ── A11y ── */
+  .a11y-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin: 16px 0; }
+  .a11y-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r6); padding: 16px; box-shadow: var(--shadow); }
+  .a11y-card h3 { font-size: 14px; margin-bottom: 6px; color: var(--accent); }
+
+  /* ── Dev note ── */
+  .dev-note { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r6); padding: 14px 18px; font-size: 13px; color: var(--mid); margin: 20px 0; }
+  .dev-note strong { color: var(--dark); }
+
+  /* ── Learnings ── */
+  .learning-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r8); overflow: hidden; box-shadow: var(--shadow); }
+  .learning-top  { padding: 12px 16px; font-size: 13px; font-weight: 700; color: white; }
+  .learning-top.accent { background: var(--accent); }
+  .learning-top.green  { background: var(--green);  }
+  .learning-top.amber  { background: var(--amber);  }
+  .learning-body { padding: 16px; font-size: 13px; color: var(--mid); }
+
+  /* ── Next steps ── */
+  .next-step { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .next-step:last-child { border-bottom: none; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-l); color: var(--accent); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-title { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 3px; }
+  .step-desc  { font-size: 13px; color: var(--mid); }
+
+  /* ── CTA ── */
+  .cta-block { background: var(--dark); border-radius: var(--r12); padding: 40px; text-align: center; margin-top: 40px; position: relative; overflow: hidden; }
+  .cta-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); }
+  .cta-block h3 { color: var(--txt-hi); font-size: 22px; margin-bottom: 8px; }
+  .cta-block a { color: var(--accent); text-decoration: none; font-size: 18px; font-weight: 700; }
+  .cta-block a:hover { text-decoration: underline; }
+
+  /* ── SEO metin (gizli değil, sayfada var ama görsel odak mockup) ── */
+  .sr-note { font-size: 12px; color: var(--light); margin-top: 6px; font-style: italic; }
+
+  @media (max-width: 640px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .app-frame { height: 200px; }
+    .app-sidebar { width: 80px; min-width: 80px; }
+    .grid-2, .grid-3, .screens-grid, .ba-grid, .a11y-grid { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .persona-attrs { grid-template-columns: 1fr; }
+    .bp-grid { grid-template-columns: 1fr; }
+    .bp-arrow { display: none; }
+    h2 { font-size: 22px; }
+    .hero h1 { font-size: 34px; }
+    .timeline { overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="hero-chip">UX / UI Tasarım · Kişisel Proje</span>
+      <h1>Hesap<span>Pro</span></h1>
+      <p class="hero-sub">Muhasebe Araçları · Tarayıcı Tabanlı Hesap Makinesi</p>
+      <div class="hero-meta">
+        <div class="meta-item"><label>Rol</label><span>UX Tasarımcı</span></div>
+        <div class="meta-item"><label>Araçlar</label><span>Figma · HTML/CSS/JS</span></div>
+        <div class="meta-item"><label>Yöntem</label><span>Iterative Design</span></div>
+        <div class="meta-item"><label>Geliştirme</label><span>Claude (Anthropic) ile</span></div>
+      </div>
+    </div>
+    <!-- Uygulama mockup -->
+    <div class="app-frame" aria-label="HesapPro uygulama önizlemesi" role="img">
+      <div class="app-sidebar">
+        <div class="app-logo">Hesap<span>Pro</span></div>
+        <div class="nav-item active">Hesap Makinesi</div>
+        <div class="nav-item">Tevkifatlı Fatura</div>
+        <div class="nav-item">Brütleştirme</div>
+      </div>
+      <div class="app-content">
+        <div class="tev-title">Tevkifatlı Fatura Hesaplayıcı</div>
+        <div class="tev-input">12.500,00</div>
+        <div class="pill-group">
+          <div class="pill">%1</div>
+          <div class="pill">%10</div>
+          <div class="pill active">%20</div>
+        </div>
+        <div class="pill-group">
+          <div class="pill">4/10</div>
+          <div class="pill active">7/10</div>
+          <div class="pill">8/10</div>
+          <div class="pill">9/10</div>
+        </div>
+        <div class="result-rows">
+          <div class="result-row"><span class="rl">Matrah</span><span class="rv white">12.500,00 TL</span></div>
+          <div class="result-row"><span class="rl">KDV Tutarı</span><span class="rv amber">2.500,00 TL</span></div>
+          <div class="result-row"><span class="rl">Tevkifat Kesintisi</span><span class="rv red">−1.750,00 TL</span></div>
+          <div class="result-row"><span class="rl">Toplam Fatura</span><span class="rv green">15.000,00 TL</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metrikler -->
+  <div class="wrap">
+    <div class="metrics">
+      <div class="metric-card" style="background:#1e293b;border-color:#334155">
+        <div class="metric-num">1</div>
+        <div class="metric-title" style="color:#f1f5f9">Kullanıcı Görüşmesi</div>
+        <div class="metric-desc">Derinlemesine ihtiyaç analizi</div>
+      </div>
+      <div class="metric-card" style="background:#1e293b;border-color:#334155">
+        <div class="metric-num">2</div>
+        <div class="metric-title" style="color:#f1f5f9">Senaryo</div>
+        <div class="metric-desc">Gerçek iş akışından tespit edildi</div>
+      </div>
+      <div class="metric-card" style="background:#1e293b;border-color:#334155">
+        <div class="metric-num" style="color:#10b981">%100</div>
+        <div class="metric-title" style="color:#f1f5f9">Görev Tamamlama</div>
+        <div class="metric-desc">Kullanılabilirlik testinde</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ══ PROBLEM & ARAŞTIRMA ════════════════════════════════════════════════ -->
+<section id="arastirma">
+  <div class="sec-label">Problem & Kullanıcı Araştırması</div>
+  <h2>Muhasebeci masasında<br>kayıp adımlar.</h2>
+  <p>Tevkifatlı KDV ve brütleştirme hesapları, muhasebecilerin günde onlarca kez yaptığı işlemlerdir. Her iki hesap türü de birden fazla adım içerir; geleneksel hesap makinesiyle yapıldığında hem zaman kaybına hem de hata riskine yol açar.</p>
+
+  <div class="info-box accent">
+    <div class="info-box-label">Kullanıcı Görüşmesi — 1 Serbest Muhasebeci · Yüz yüze · ~45 dakika</div>
+    <p><em>"Tevkifat hesabını her seferinde adım adım yapmak zorunda kalıyorum. Matrahı alıyorum, KDV'yi hesaplıyorum, tevkifat oranını çarpıyorum — üç ayrı işlem. Yanlış yazmak çok kolay."</em></p>
+  </div>
+
+  <h3 style="margin-top:32px">Keşfedilen Senaryolar</h3>
+  <p>"En çok adım gerektiren iki hesabı düşünün" isteğiyle iki senaryo tespit edildi:</p>
+
+  <div class="grid-2">
+    <div class="scenario-card accent">
+      <div class="scenario-num">01</div>
+      <h3>Tevkifatlı KDV Faturası</h3>
+      <p>Matrah bilinirken fatura toplamı, KDV tutarı ve tevkifat kesintisi ayrı ayrı hesaplanır. Günde onlarca faturada tekrar eden en yaygın senaryo.</p>
+    </div>
+    <div class="scenario-card green">
+      <div class="scenario-num">02</div>
+      <h3>Brütleştirme / Stopaj</h3>
+      <p>Net ücret bilinirken brüt tutar ve stopaj kesintisi bulunur. SMM makbuzları, kira ödemeleri ve kâr paylarında kullanılır.</p>
+    </div>
+  </div>
+
+  <div class="info-box amber" style="margin-top:20px">
+    <div class="info-box-label">Temel İçgörü</div>
+    <p>Hesap makinesi arayüzü zaten tanıdık — muhasebeciler her gün kullanıyor. Sorun araç değil, süreç. Tasarım bu adımları otomatikleştirmeli; arayüzü yeniden öğretmemeli.</p>
+  </div>
+
+  <h3 style="margin-top:32px">Kullanıcı Profili</h3>
+  <div class="persona-card">
+    <div class="avatar">U</div>
+    <div class="persona-details">
+      <div class="persona-name">Umut Y.</div>
+      <div class="persona-role">Finans Uzmanı · İzmir</div>
+      <div class="persona-attrs">
+        <div><div class="attr-label">Hedef</div><div class="attr-val">Hızlı ve hatasız hesap</div></div>
+        <div><div class="attr-label">Pain Point</div><div class="attr-val">Çok adımlı işlemler</div></div>
+        <div><div class="attr-label">Araç</div><div class="attr-val">Hesap makinesi + Excel</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SÜREÇ & İTERASYON ══════════════════════════════════════════════════ -->
+<section id="surecl">
+  <div class="sec-label">Tasarım Süreci & İterasyon</div>
+  <h2>Önce kullan,<br>sonra genişlet.</h2>
+
+  <div class="timeline">
+    <div class="t-step"><div class="t-dot">1</div><div class="t-title">Keşif</div><div class="t-desc">Görüşme<br>2 senaryo</div></div>
+    <div class="t-step"><div class="t-dot">2</div><div class="t-title">V1 Tasarım</div><div class="t-desc">Sekme<br>tabanlı</div></div>
+    <div class="t-step"><div class="t-dot">3</div><div class="t-title">İterasyon</div><div class="t-desc">Kullanıcı<br>geri bildirimi</div></div>
+    <div class="t-step"><div class="t-dot">4</div><div class="t-title">V2 Tasarım</div><div class="t-desc">Sidebar<br>navigation</div></div>
+    <div class="t-step"><div class="t-dot done">5</div><div class="t-title">Test</div><div class="t-desc">%100 görev<br>tamamlama</div></div>
+  </div>
+
+  <h3>Kritik Tasarım Kararı</h3>
+  <div class="ba-grid">
+    <div class="ba-card before">
+      <div class="ba-label">V1 — Sekme Tabanlı</div>
+      <h3>Üstte sekmeler</h3>
+      <p style="font-size:13px;color:var(--mid)">Hesap Makinesi | Tevkifat</p>
+      <div class="ba-mini">
+        <div class="ba-mini-label">Layout önizleme</div>
+        <div class="ba-mini-row">
+          <div class="ba-tab active">Hesap M.</div>
+          <div class="ba-tab">Tevkifat</div>
+          <div class="ba-tab">+ Yeni?</div>
+        </div>
+      </div>
+      <div class="ba-problem">Sorun: Yeni araç = yeni sekme = mimari patlar</div>
+    </div>
+    <div class="ba-card after">
+      <div class="ba-label">V2 — Sidebar Navigation</div>
+      <h3>Sol navigation rail</h3>
+      <p style="font-size:13px;color:var(--mid)">Sol sabit, sağ içerik değişir</p>
+      <div class="ba-mini">
+        <div class="ba-mini-label">Layout önizleme</div>
+        <div style="display:flex;gap:6px">
+          <div class="ba-nav">
+            <div class="ba-nav-item active">Hesap M.</div>
+            <div class="ba-nav-item">Tevkifat</div>
+            <div class="ba-nav-item">Brüt</div>
+            <div class="ba-nav-item" style="color:var(--light)">+ Yeni</div>
+          </div>
+          <div style="flex:1;background:rgba(16,185,129,.05);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--green)">İçerik alanı</div>
+        </div>
+      </div>
+      <div class="ba-problem">Sonuç: Yeni araç = sadece yeni nav öğesi</div>
+    </div>
+  </div>
+
+  <div class="info-box accent">
+    <div class="info-box-label">Neden Bu Karar Önemliydi?</div>
+    <p>Kullanıcı ilk görüşmede "devamı gelecek" dedi. Bu tek cümle, tasarımın büyümeye kapalı olmaması gerektiğini gösterdi. Sidebar navigation rail bu problemi baştan çözdü — mimari karar kullanıcı ihtiyacıyla şekillendi.</p>
+  </div>
+</section>
+
+<!-- ══ TEST & KARARLAR ════════════════════════════════════════════════════ -->
+<section id="test">
+  <div class="sec-label">Kullanılabilirlik Testi & Tasarım Kararları</div>
+  <h2>Test az,<br>öğrenme çok.</h2>
+  <p>Tasarımı aynı muhasebeci kullanıcıya gönderdim ve birkaç gerçek hesap yapmasını istedim. Tek ölçüt: zorlanıyor mu?</p>
+
+  <table class="test-table">
+    <thead>
+      <tr><th>Görev</th><th>Senaryo</th><th>Sonuç</th><th>Süre</th><th>Not</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Görev 1</td><td>Tevkifat hesabı (7/10, 12.500 TL)</td><td><span class="badge">Tamamlandı</span></td><td>45 sn</td><td>Tereddütsüz</td></tr>
+      <tr><td>Görev 2</td><td>Brütleştirme (1.000 TL, %10 SMM)</td><td><span class="badge">Tamamlandı</span></td><td>38 sn</td><td>İlk denemede</td></tr>
+      <tr><td>Görev 3</td><td>Sonuçları panoya kopyala</td><td><span class="badge">Tamamlandı</span></td><td>5 sn</td><td>Hemen buldu</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box green">
+    <div class="info-box-label">Neden Zorlanmadı?</div>
+    <p>Hesap makinesi arayüzü evrensel olarak tanınan bir pattern. Kullanıcı arayüzü öğrenmek zorunda kalmadı — <strong>recognition over recall</strong>. Tasarım bu güçten yararlandı.</p>
+  </div>
+
+  <h3 style="margin-top:32px">Önemli Tasarım Kararları</h3>
+  <div class="grid-2" style="margin-top:12px">
+    <div class="decision-card accent"><h3>Oran değişince otomatik hesap</h3><p>KDV oranı değiştiğinde sonuçlar anında güncellenir. "Hesapla"ya tekrar basmak gerekmez.</p></div>
+    <div class="decision-card amber"><h3>Adım adım formül gösterimi</h3><p>"Nasıl hesaplandı?" butonu her hesabın altında. Denetim ve güven için kritik.</p></div>
+    <div class="decision-card green"><h3>Sonuçları kopyala</h3><p>Tek tıkla tüm hesap panoya kopyalanır. Excel'e veya e-postaya doğrudan yapıştırılır.</p></div>
+    <div class="decision-card red"><h3>Tercih hafızası</h3><p>Son kullanılan oranlar tarayıcıda kaydedilir. Her gün aynı oran tekrar seçilmez.</p></div>
+  </div>
+</section>
+
+<!-- ══ FİNAL TASARIM ══════════════════════════════════════════════════════ -->
+<section id="tasarim">
+  <div class="sec-label">Final Tasarım</div>
+  <h2>Üç araç, tek arayüz.</h2>
+
+  <div class="screens-grid">
+    <div class="screen-card">
+      <h3>Hesap Makinesi</h3>
+      <p>Tam klavye destekli<br>4 işlem + yüzde</p>
+      <div class="screen-mini">
+        <div class="screen-mini-sb">
+          <div class="screen-mini-dot active"></div>
+          <div class="screen-mini-dot"></div>
+          <div class="screen-mini-dot"></div>
+        </div>
+        <div class="screen-mini-content">
+          <div class="smc-bar" style="background:rgba(59,130,246,.15);margin-bottom:4px;height:18px;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding:0 6px"><span style="font-size:11px;font-weight:700;color:var(--txt-hi);font-family:monospace">1.250,00</span></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;flex:1">
+            <div style="background:#f87171;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;color:white;font-weight:700">AC</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-mid)">%</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-mid)">±</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--accent)">÷</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-hi)">7</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-hi)">8</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-hi)">9</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--accent)">×</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-hi)">4</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-hi)">5</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-hi)">6</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--accent)">−</div>
+            <div style="grid-column:span 2;background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-hi)">0</div>
+            <div style="background:var(--app-r);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-hi)">,</div>
+            <div style="background:var(--accent);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:white;font-weight:700">=</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-card">
+      <h3>Tevkifatlı Fatura</h3>
+      <p>KDV + tevkifat oranı<br>seçilebilir</p>
+      <div class="screen-mini">
+        <div class="screen-mini-sb">
+          <div class="screen-mini-dot"></div>
+          <div class="screen-mini-dot active"></div>
+          <div class="screen-mini-dot"></div>
+        </div>
+        <div class="screen-mini-content">
+          <div style="font-size:9px;font-weight:700;color:var(--accent);margin-bottom:4px">Tevkifatlı Fatura</div>
+          <div style="background:var(--app-bg);border:1px solid var(--accent);border-radius:2px;padding:3px 6px;font-size:9px;font-weight:700;font-family:monospace;color:var(--txt-hi);text-align:right;margin-bottom:4px">12.500,00</div>
+          <div class="smc-result"><span class="smc-r-label"></span><span class="smc-r-val" style="color:var(--txt-hi)">12.500</span></div>
+          <div class="smc-result"><span class="smc-r-label"></span><span class="smc-r-val" style="color:var(--amber)">2.500</span></div>
+          <div class="smc-result"><span class="smc-r-label"></span><span class="smc-r-val" style="color:var(--red)">−1.750</span></div>
+          <div class="smc-result"><span class="smc-r-label"></span><span class="smc-r-val" style="color:var(--green)">15.000</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-card">
+      <h3>Brütleştirme</h3>
+      <p>Net → Brüt → Stopaj<br>otomatik hesap</p>
+      <div class="screen-mini">
+        <div class="screen-mini-sb">
+          <div class="screen-mini-dot"></div>
+          <div class="screen-mini-dot"></div>
+          <div class="screen-mini-dot active"></div>
+        </div>
+        <div class="screen-mini-content">
+          <div style="font-size:9px;font-weight:700;color:var(--accent);margin-bottom:4px">Brütleştirme</div>
+          <div style="background:var(--app-bg);border:1px solid var(--app-bord);border-radius:2px;padding:3px 6px;font-size:9px;font-weight:700;font-family:monospace;color:var(--txt-hi);text-align:right;margin-bottom:4px">1.000,00</div>
+          <div class="smc-result"><span class="smc-r-label"></span><span class="smc-r-val" style="color:var(--txt-hi)">1.000</span></div>
+          <div class="smc-result"><span class="smc-r-label"></span><span class="smc-r-val" style="color:var(--amber)">1.111</span></div>
+          <div class="smc-result"><span class="smc-r-label"></span><span class="smc-r-val" style="color:var(--red)">−111</span></div>
+          <div class="smc-result"><span class="smc-r-label"></span><span class="smc-r-val" style="color:var(--green)">1.000</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tema kararı -->
+  <div class="info-box dark" style="border:1px solid #334155;margin-top:24px">
+    <div class="info-box-label" style="color:var(--accent)">Neden Dark Tema?</div>
+    <p style="color:var(--txt-mid)">Fintech ürünleri incelendiğinde koyu temanın sektör standardı olduğu görüldü — Bloomberg, Trading 212, Binance. HesapPro bu algıyı bilinçli olarak kullandı. <strong style="color:var(--txt-hi)">Light tema proje kapsamı nedeniyle bu versiyonda bırakıldı; bir sonraki iterasyonda planlanıyor.</strong></p>
+  </div>
+
+  <!-- Responsive -->
+  <h3 style="margin-top:32px">Responsive Davranış</h3>
+  <p style="margin-bottom:16px">Desktop-first tasarlandı. Hedef kullanıcı masaüstünde çalışıyor. Tek breakpoint (640px) ile mobil erişilebilirlik sağlandı.</p>
+  <div class="bp-grid">
+    <div class="bp-card desktop">
+      <div class="bp-title">Desktop &gt;640px</div>
+      <div class="bp-layout">
+        <div class="bp-sidebar">Sidebar</div>
+        <div class="bp-content">İçerik</div>
+      </div>
+      <div class="bp-desc">200px sabit sidebar + esnek içerik alanı</div>
+    </div>
+    <div class="bp-arrow">→</div>
+    <div class="bp-card mobile">
+      <div class="bp-title">Mobil &lt;640px</div>
+      <div class="bp-mob-layout">
+        <div class="bp-mob-top">Yatay pill nav</div>
+        <div class="bp-mob-body">Tam genişlik içerik</div>
+      </div>
+      <div class="bp-desc">Sidebar kaybolur, pill şeridine dönüşür</div>
+    </div>
+  </div>
+
+  <!-- Erişilebilirlik -->
+  <h3 style="margin-top:32px">Erişilebilirlik</h3>
+  <div class="a11y-grid">
+    <div class="a11y-card"><h3>WCAG 2.1 AA</h3><p>Tüm renk çiftleri min 4.5:1 kontrast oranını karşılar.</p></div>
+    <div class="a11y-card"><h3>Klavye Navigasyonu</h3><p>Tab, Enter, Escape ile fare olmadan tam erişim sağlanır.</p></div>
+    <div class="a11y-card"><h3>Ekran Okuyucu</h3><p>aria-live ile hesaplama sonuçları otomatik seslendirilir.</p></div>
+    <div class="a11y-card"><h3>Dokunma Hedefleri</h3><p>Tüm butonlar minimum 44×44px — mobil standartları karşılanır.</p></div>
+  </div>
+
+  <div class="dev-note">
+    <strong>Geliştirme:</strong> Bu proje Claude (Anthropic) ile işbirliğiyle yazılmıştır. Tasarım kararları, kullanıcı araştırması ve ürün vizyonu tasarımcıya aittir.
+  </div>
+</section>
+
+<!-- ══ ÖĞRENDIKLERIM ══════════════════════════════════════════════════════ -->
+<section id="ogrendim">
+  <div class="sec-label">Öğrendiklerim & Sonraki Adımlar</div>
+  <h2>Küçük araştırma,<br>büyük mimari karar.</h2>
+  <p>Tek bir kullanıcı görüşmesi, tasarımın temel mimarisini değiştirdi. "Devamı gelecek" cümlesi, sekme tabanlı yapının yerini sidebar navigation'a bırakması anlamına geldi. Erken araştırmanın ne kadar kritik olduğunu bu deneyim somut olarak gösterdi.</p>
+
+  <div class="grid-3" style="margin:24px 0">
+    <div class="learning-card">
+      <div class="learning-top accent">Tanıdık pattern güçtür</div>
+      <div class="learning-body">Hesap makinesi öğretilmek zorunda kalmadı. Recognition over recall prensibi sıfır öğrenme eğrisi sağladı.</div>
+    </div>
+    <div class="learning-card">
+      <div class="learning-top green">Mimari karar önce gelir</div>
+      <div class="learning-body">Sekme vs sidebar yalnızca görsel değil, büyüme stratejisi kararıydı. UX tasarımcısı bunu öngörmelidir.</div>
+    </div>
+    <div class="learning-card">
+      <div class="learning-top amber">1 kullanıcı da yeterli</div>
+      <div class="learning-body">Küçük grupta bile iterative gidebilirsin. Önemli olan geri bildirimi zamanında almak.</div>
+    </div>
+  </div>
+
+  <div class="info-box amber">
+    <div class="info-box-label">Proje Devam Ediyor</div>
+    <p>HesapPro aktif geliştirme sürecinde. Sidebar mimarisi sayesinde yeni modüller mevcut tasarımı bozmadan eklenebilir. Sonraki iterasyon: KDV karşılaştırma tablosu + light tema.</p>
+  </div>
+
+  <h3 style="margin-top:32px">Sonraki Adımlar</h3>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r8);padding:8px 20px;margin-top:12px">
+    <div class="next-step"><div class="step-num">01</div><div><div class="step-title">KDV Hesaplayıcı</div><div class="step-desc">Çoklu oran karşılaştırmalı tablo</div></div></div>
+    <div class="next-step"><div class="step-num">02</div><div><div class="step-title">Light Tema</div><div class="step-desc">Fintech dark tema bilinçli seçildi; light tema bir sonraki iterasyonda planlanıyor</div></div></div>
+    <div class="next-step"><div class="step-num">03</div><div><div class="step-title">Fatura Önizleme</div><div class="step-desc">Hesaplardan otomatik fatura taslağı oluşturma</div></div></div>
+    <div class="next-step"><div class="step-num">04</div><div><div class="step-title">Genişletilmiş Test</div><div class="step-desc">5+ muhasebeci ile kullanılabilirlik testi</div></div></div>
+  </div>
+
+  <div class="cta-block">
+    <h3>Canlı uygulamayı deneyin</h3>
+    <a href="https://aykytt.github.io/hesappro/" target="_blank" rel="noopener">aykytt.github.io/hesappro</a>
+  </div>
+</section>
+
+</main>
+</body>
+</html>
